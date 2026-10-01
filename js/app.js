@@ -1,5 +1,4 @@
 import { FaceLandmarker, FilesetResolver } from '../vendor/mediapipe/vision_bundle.mjs';
-import { createCap3D } from './cap3d.js';
 
 // ---------------------------------------------------------------------------
 // Settings
@@ -107,12 +106,30 @@ function loadImage(name, src) {
   });
 }
 
+let assetsPromise = null;
 function loadAssets() {
-  return Promise.all([
-    loadImage('cap', 'assets/cap.png'),
-    loadImage('acti', 'assets/acti.webp'),
-    loadImage('logo', 'assets/logo.png'),
-  ]);
+  if (!assetsPromise) {
+    assetsPromise = Promise.all([
+      loadImage('cap', 'assets/cap.png'),
+      loadImage('acti', 'assets/acti.webp'),
+      loadImage('logo', 'assets/logo.png'),
+    ]).catch((err) => { assetsPromise = null; throw err; });
+  }
+  return assetsPromise;
+}
+
+// The 3D cap (three.js, ~2 MB) loads only after face tracking is ready, so it never slows tracking down.
+// Until it's ready the flat cap is shown.
+let cap3dLoading = false;
+async function setup3DCap() {
+  if (!USE_3D_CAP || cap3d || cap3dLoading) return;
+  cap3dLoading = true;
+  try {
+    const [{ createCap3D }] = await Promise.all([import('./cap3d.js'), loadAssets()]);
+    cap3d = createCap3D({ width: W, height: H, logo: images.logo });
+  } catch (err) {
+    console.warn('3D cap failed to load, keeping the flat cap', err);
+  }
 }
 
 async function loadFonts() {
@@ -679,8 +696,10 @@ function draw(now) {
   const faces = visibleSlots(now);
   drawBackground();
   if (showNose) faces.forEach(drawNose);
-  if (cap3d) ctx.drawImage(cap3d.render(faces.map((s) => s.head)), 0, 0, W, H);
-  else faces.forEach(drawCap);
+  if (faces.length) {
+    if (cap3d) ctx.drawImage(cap3d.render(faces.map((s) => s.head)), 0, 0, W, H);
+    else faces.forEach(drawCap);
+  }
   updateSpin(now);
   drawBadges(faces, now);
   drawConfetti();
@@ -853,13 +872,12 @@ async function start() {
     show(ui.error);
     return;
   }
-  if (USE_3D_CAP && !cap3d) cap3d = createCap3D({ width: W, height: H, logo: images.logo });
   show(null);
   ui.controls.hidden = false;
   fitCanvas();
   updateFlipButton();
   if (!running) { running = true; requestAnimationFrame(loop); }
-  loadModel().catch((err) => {
+  loadModel().then(setup3DCap).catch((err) => {
     console.error(err);
     ui.errorText.textContent = "Face tracking couldn't start on this device. Try updating your browser.";
     show(ui.error);
@@ -918,5 +936,6 @@ document.addEventListener('visibilitychange', () => {
 if (/Instagram|FBAN|FBAV|FB_IAB/i.test(navigator.userAgent)) $('inAppWarn').hidden = false;
 
 rec.mime = pickMime();
-// Start downloading face tracking straight away so it's ready by the time the camera is.
-loadModel().catch(() => {});
+// Start downloading face tracking straight away so it's ready by the time the camera is,
+// then fetch the 3D cap in the background.
+loadModel().then(setup3DCap).catch(() => {});

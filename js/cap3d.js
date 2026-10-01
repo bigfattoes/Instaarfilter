@@ -25,7 +25,7 @@ const COLORS = {
   seam: 'rgba(40, 20, 90, 0.16)',
 };
 
-export function createCap3D({ width, height, logo, resolution = 0.75 }) {
+export function createCap3D({ width, height, logo, resolution = 0.5 }) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
@@ -55,6 +55,12 @@ export function createCap3D({ width, height, logo, resolution = 0.75 }) {
   const r = new THREE.Vector3();
   const u = new THREE.Vector3();
   const f = new THREE.Vector3();
+
+  // Compile the shaders now, so the first frame with a face doesn't stutter.
+  const warm = template.clone();
+  scene.add(warm);
+  renderer.compile(scene, camera);
+  scene.remove(warm);
 
   function render(heads) {
     while (caps.length < heads.length) {
@@ -197,7 +203,7 @@ function paintCrown(logo) {
   g.fillRect(front - half, 0, half * 2, h);
 
   // Subtle fabric texture
-  for (let i = 0; i < 26000; i++) {
+  for (let i = 0; i < 9000; i++) {
     g.fillStyle = Math.random() < 0.5 ? 'rgba(0,0,0,0.035)' : 'rgba(255,255,255,0.05)';
     g.fillRect(Math.random() * w, Math.random() * h, 2, 2);
   }
