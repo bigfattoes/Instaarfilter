@@ -1,4 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from '../vendor/mediapipe/vision_bundle.mjs';
+import { createCap3D } from './cap3d.js';
 
 // ---------------------------------------------------------------------------
 // Settings
@@ -43,11 +44,21 @@ const ACTIVITIES = [
   ['🧗', 'CLIMBING'],
 ];
 
+// Shown in the footer of every photo and video
+const EVENT = {
+  dates: '16–17 JAN 2027',
+  venue: 'DUBAI SILICON OASIS',
+  handle: '@activatemefest',
+};
+
 const FONT = '"Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
 
 // FaceMesh landmark indices
 const LM = { leftCheek: 234, rightCheek: 454, foreheadTop: 10, forehead: 151, chin: 152, noseTip: 4 };
+
+// The 3D cap is the default; add ?cap=2d to the link to use the flat cap instead.
+const USE_3D_CAP = new URLSearchParams(location.search).get('cap') !== '2d';
 
 // ---------------------------------------------------------------------------
 // Elements & state
@@ -75,6 +86,7 @@ let paused = false;
 let lastVideoTime = -1;
 let lastFaceSeen = 0;
 let showNose = true;
+let cap3d = null;
 
 const slots = []; // smoothed face poses, sorted left → right on screen
 const confetti = [];
@@ -212,7 +224,41 @@ function poseFromLandmarks(lm, map) {
   const size = Math.max(faceW, faceH * 0.82); // stays steady when the head turns
   const forehead = P(LM.forehead);
   const nose = P(LM.noseTip);
-  return { x: forehead.x, y: forehead.y, angle, size, noseX: nose.x, noseY: nose.y, chinX: chin.x, chinY: chin.y };
+  return {
+    x: forehead.x, y: forehead.y, angle, size,
+    noseX: nose.x, noseY: nose.y, chinX: chin.x, chinY: chin.y,
+    head: headFrame(lm, map),
+  };
+}
+
+// 3D head position and orientation for the 3D cap, in three.js coordinates
+// (origin at the canvas centre, y up, z towards the camera, units = canvas pixels).
+function headFrame(lm, map) {
+  const Q = (i) => {
+    let x = map.ox + lm[i].x * map.dw;
+    if (map.mirror) x = W - x;
+    return [x - W / 2, H / 2 - (map.oy + lm[i].y * map.dh), -lm[i].z * map.dw];
+  };
+  const a = Q(LM.leftCheek);
+  const b = Q(LM.rightCheek);
+  let r = sub(b, a);
+  if (r[0] < 0) r = scale(r, -1);
+  const s = len(r);
+  r = scale(r, 1 / s);
+  const u = orthonormal(sub(Q(LM.foreheadTop), Q(LM.chin)), r);
+  return { o: scale(add(a, b), 0.5), r, u, s };
+}
+
+const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const scale = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const len = (a) => Math.hypot(a[0], a[1], a[2]);
+const lerp3 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+// v made perpendicular to the unit vector r, then normalised
+function orthonormal(v, r) {
+  const p = sub(v, scale(r, dot(v, r)));
+  return scale(p, 1 / len(p));
 }
 
 function updateFaces(faceLandmarks, now) {
@@ -230,6 +276,12 @@ function updateFaces(faceLandmarks, now) {
     for (const key of ['x', 'y', 'noseX', 'noseY', 'chinX', 'chinY']) s[key] += (pose[key] - s[key]) * k;
     s.size += (pose.size - s.size) * 0.4;
     s.angle += (pose.angle - s.angle) * 0.5;
+    const h = s.head;
+    h.o = lerp3(h.o, pose.head.o, 0.55);
+    h.s += (pose.head.s - h.s) * 0.4;
+    const r = lerp3(h.r, pose.head.r, 0.5);
+    h.r = scale(r, 1 / len(r));
+    h.u = orthonormal(lerp3(h.u, pose.head.u, 0.5), h.r);
     s.seen = now;
   });
 }
@@ -403,7 +455,7 @@ function drawBadge(x, y, angle, unit, activity, plan, now) {
   const totalH = fs * BADGE_HEIGHT;
 
   // Keep the whole badge on screen and clear of Instagram's top bar.
-  const half = (Math.max(bw, ctx.measureText("I'M ACTIVATING…").width) / 2) * scale;
+  const half = (Math.max(bw, ctx.measureText('WHAT SHOULD I TRY?').width * 0.6) / 2) * scale;
   x = Math.min(W - 40 - half, Math.max(40 + half, x));
   y = Math.max(SAFE_TOP + totalH * scale, y);
 
@@ -437,7 +489,7 @@ function drawBadge(x, y, angle, unit, activity, plan, now) {
   ctx.fillText(label, cx, cy + fs * 0.1);
 
   // Tag above the pill
-  const tag = landed ? "I'M ACTIVATING…" : 'WHAT WILL I ACTIVATE?';
+  const tag = landed ? 'I SHOULD TRY…' : 'WHAT SHOULD I TRY?';
   const tfs = fs * 0.55;
   ctx.font = `800 ${tfs}px ${FONT}`;
   const tw = ctx.measureText(tag).width + tfs * 1.4;
@@ -540,53 +592,71 @@ function drawFrame(now) {
 
   // Bottom banner, kept above the area Instagram covers with the reply bar
   const bx = 44;
-  const bh = 190;
-  const by = H - 170 - bh;
+  const bh = 250;
+  const by = H - 150 - bh;
   const bwid = W - bx * 2;
   ctx.shadowColor = 'rgba(0,0,0,0.35)';
   ctx.shadowBlur = 30;
   ctx.shadowOffsetY = 10;
-  roundRect(ctx, bx, by, bwid, bh, 48);
+  roundRect(ctx, bx, by, bwid, bh, 52);
   ctx.fillStyle = brandGradient(ctx, bx, by, bx + bwid, by + bh);
   ctx.fill();
+
+  // Instagram handle on a tab above the banner
+  ctx.font = `800 40px ${FONT}`;
+  const hw = ctx.measureText(EVENT.handle).width + 56;
+  const hh = 64;
+  roundRect(ctx, bx + 24, by - hh + 18, hw, hh, hh / 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
   ctx.shadowColor = 'transparent';
+  ctx.fillStyle = COLORS.purple;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(EVENT.handle, bx + 24 + 28, by - hh / 2 + 18 + 3);
 
   // Logo in a white circle
-  const r = 64;
-  const lcx = bx + 34 + r;
+  const r = 72;
+  const lcx = bx + 30 + r;
   const lcy = by + bh / 2;
   ctx.beginPath();
   ctx.arc(lcx, lcy, r, 0, Math.PI * 2);
   ctx.fillStyle = '#fff';
   ctx.fill();
   const logo = images.logo;
-  const ls = r * 1.35;
-  const lw = ls;
-  const lh = ls * (logo.height / logo.width);
+  const lw = r * 1.35;
+  const lh = lw * (logo.height / logo.width);
   ctx.drawImage(logo, lcx - lw / 2, lcy - lh / 2 + 4, lw, lh);
 
   // Acti stands on the right of the banner and gently bobs
   const acti = images.acti;
-  const ah = 500;
+  const ah = 520;
   const aw = ah * (acti.width / acti.height);
   const bob = Math.sin(now / 420) * 8;
-  const ax = bx + bwid - aw + 40;
-  const ay = by + bh + 70 - ah + bob;
+  const ax = bx + bwid - aw + 46;
+  const ay = by + bh + 60 - ah + bob;
 
-  // Text between the logo and Acti
-  const tx = lcx + r + 30;
-  const maxW = ax + aw * 0.16 - tx;
+  // Name, date and venue between the logo and Acti
+  const tx = lcx + r + 28;
+  const maxW = ax + aw * 0.04 - tx;
+  const lines = [
+    { text: 'ACTIVATEME™ FEST', weight: 800, size: fitFont('ACTIVATEME™ FEST', 800, 60, maxW) },
+    { text: `📅 ${EVENT.dates}`, weight: 700, size: fitFont(`📅 ${EVENT.dates}`, 700, 42, maxW) },
+    { text: `📍 ${EVENT.venue}`, weight: 700, size: fitFont(`📍 ${EVENT.venue}`, 700, 42, maxW) },
+  ];
+  lines[2].size = Math.min(lines[1].size, lines[2].size);
+  lines[1].size = lines[2].size;
+  const gap = 10;
+  const blockH = lines.reduce((t, l) => t + l.size, 0) + gap * (lines.length - 1);
+  let ty = by + (bh - blockH) / 2 + 4;
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  const s1 = fitFont('ACTIVATEME™ FEST', 800, 66, maxW);
-  ctx.font = `800 ${s1}px ${FONT}`;
-  ctx.fillText('ACTIVATEME™ FEST', tx, by + bh / 2 + 6);
-  const s2 = fitFont('2027 · @activatemefest', 700, 40, maxW);
-  ctx.font = `700 ${s2}px ${FONT}`;
-  ctx.globalAlpha = 0.95;
-  ctx.fillText('2027 · @activatemefest', tx, by + bh / 2 + 6 + s2 * 1.25);
-  ctx.globalAlpha = 1;
+  ctx.textBaseline = 'top';
+  for (const l of lines) {
+    ctx.font = `${l.weight} ${l.size}px ${FONT}`;
+    ctx.fillText(l.text, tx, ty);
+    ty += l.size + gap;
+  }
 
   ctx.shadowColor = 'rgba(0,0,0,0.3)';
   ctx.shadowBlur = 24;
@@ -598,10 +668,9 @@ function drawFrame(now) {
 function draw(now) {
   const faces = visibleSlots(now);
   drawBackground();
-  for (const s of faces) {
-    if (showNose) drawNose(s);
-    drawCap(s);
-  }
+  if (showNose) faces.forEach(drawNose);
+  if (cap3d) ctx.drawImage(cap3d.render(faces.map((s) => s.head)), 0, 0, W, H);
+  else faces.forEach(drawCap);
   updateSpin(now);
   drawBadges(faces, now);
   drawConfetti();
@@ -744,6 +813,20 @@ async function share() {
 // UI wiring
 // ---------------------------------------------------------------------------
 
+// Size the canvas to the largest 9:16 box that fits above the controls.
+function fitCanvas() {
+  const vp = $('viewport');
+  const cs = getComputedStyle(vp);
+  const availW = vp.clientWidth - 12;
+  const availH = vp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+  const w = Math.max(0, Math.min(availW, (availH * 9) / 16));
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${(w * 16) / 9}px`;
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', () => setTimeout(fitCanvas, 300));
+fitCanvas();
+
 function show(section) {
   for (const el of [ui.intro, ui.loading, ui.error]) el.hidden = el !== section;
 }
@@ -760,8 +843,10 @@ async function start() {
     show(ui.error);
     return;
   }
+  if (USE_3D_CAP && !cap3d) cap3d = createCap3D({ width: W, height: H, logo: images.logo });
   show(null);
   ui.controls.hidden = false;
+  fitCanvas();
   updateFlipButton();
   if (!running) { running = true; requestAnimationFrame(loop); }
   loadModel().catch((err) => {

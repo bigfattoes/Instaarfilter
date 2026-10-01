@@ -2,10 +2,10 @@
 
 A free web AR filter for **ActivateMe™ Fest**. People open a link, and their phone camera shows them:
 
-- 🧢 **Acti's cap** tracked onto every face in the shot (up to 3, so whole families can join in)
+- 🧢 **Acti's cap in 3D**, tracked onto every face in the shot (up to 3, so whole families can join in). It turns, tilts and nods with the head. Add `?cap=2d` to the link for the original flat cap.
 - 🧡 **Acti's orange nose** (can be turned off)
-- 🎲 **Spin!**: a "What will I activate?" randomizer above each head that lands on an activity (football, dance, VR, e-gaming…) with confetti
-- A branded frame with the logo, **@activatemefest**, and Acti waving
+- 🎲 **Spin!**: a "What should I try?" randomizer above each head that lands on an activity (football, dance, VR, e-gaming…) with confetti
+- A branded frame with the logo, **@activatemefest**, the dates (**16–17 Jan 2027**), the venue (**Dubai Silicon Oasis**), and Acti waving
 
 **Tap** the shutter for a photo and **hold** it for a video of up to 15 seconds. **Share** opens the phone's share sheet, so people can post straight to their Instagram story and tag @activatemefest.
 
@@ -51,8 +51,9 @@ Everything lives in `js/app.js`:
 |---|---|
 | Spinner activities | `ACTIVITIES` list near the top |
 | Brand colours | `COLORS` (and `:root` in `css/style.css`) |
-| Banner text ("ACTIVATEME™ FEST", "2027 · @activatemefest") | `drawFrame()` |
-| Cap size / position | `CAP.scale` and `drawCap()` |
+| Dates, venue, Instagram handle | `EVENT` near the top |
+| 3D cap shape, colours, position | `TUNE` and `COLORS` in `js/cap3d.js` |
+| Flat (2D) cap size / position | `CAP.scale` and `drawCap()` |
 | Max video length | `MAX_RECORD_MS` |
 
 Assets are in `assets/`: `cap.png` (cut from the Acti artwork), `acti.webp`, `logo.png`, icons, and `og.jpg` (the link preview image).
@@ -62,7 +63,9 @@ Assets are in `assets/`: `cap.png` (cut from the Acti artwork), `acti.webp`, `lo
 index.html            page + UI
 css/style.css         styles
 js/app.js             camera, face tracking, drawing, capture, sharing
+js/cap3d.js           the 3D cap (three.js)
 assets/               Acti, cap, logo, icons
 vendor/mediapipe/     MediaPipe face tracking (self-hosted)
+vendor/three/         three.js 3D library (self-hosted, MIT)
 models/               face landmark model
 ```

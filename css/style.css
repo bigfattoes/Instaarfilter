@@ -28,31 +28,41 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 #stage {
   position: fixed;
   inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 30%, #2a0d6e 0%, #0d0620 70%);
+}
+
+/* Camera area. The canvas is sized by fitCanvas() in app.js to the largest 9:16 box that fits,
+   so what you see is exactly what gets saved. */
+#viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 50% 30%, #2a0d6e 0%, #0d0620 70%);
+  padding-top: env(safe-area-inset-top);
 }
 
 #video { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-/* The canvas keeps a 9:16 story shape and is contained in the screen, so what you see is what you save. */
 #canvas {
-  height: 100%;
-  max-width: 100%;
-  aspect-ratio: 9 / 16;
-  object-fit: contain;
   display: block;
-}
-@media (max-aspect-ratio: 9/16) {
-  #canvas { width: 100%; height: auto; }
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
 }
 
-/* Controls */
-#controls { position: absolute; inset: 0; pointer-events: none; }
-#controls > * { pointer-events: auto; }
+/* Controls live in their own strip under the camera so they never cover the frame. */
+#controls {
+  flex: none;
+  padding: 12px 0 calc(env(safe-area-inset-bottom) + 6px);
+}
+#controls[hidden] { display: none; }
 
 .icon-btn {
   position: absolute;
+  z-index: 1;
   width: 48px; height: 48px;
   border-radius: 50%;
   background: rgba(13, 6, 32, .45);
@@ -60,18 +70,16 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   -webkit-backdrop-filter: blur(8px);
   display: grid; place-items: center;
 }
+.icon-btn[hidden] { display: none; }
 .icon-btn svg { width: 26px; height: 26px; }
 .top-right { top: calc(env(safe-area-inset-top) + 16px); right: 16px; }
 
 .bottom-bar {
-  position: absolute;
-  left: 0; right: 0;
-  bottom: calc(env(safe-area-inset-bottom) + 34px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  padding: 0 16px;
+  padding: 0 12px;
 }
 .bottom-bar #noseBtn { justify-self: end; }
 .bottom-bar #spinBtn { justify-self: start; }
@@ -87,6 +95,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   font-weight: 700;
   font-size: 15px;
   border: 2px solid rgba(255, 255, 255, .25);
+  white-space: nowrap;
   transition: transform .15s ease, background .2s ease;
 }
 .pill-btn:active { transform: scale(.94); }
@@ -97,7 +106,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .shutter {
   position: relative;
-  width: 84px; height: 84px;
+  width: 78px; height: 78px;
   border-radius: 50%;
   display: grid; place-items: center;
   touch-action: none;
@@ -106,11 +115,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   position: absolute; inset: 0;
   border-radius: 50%;
   background: conic-gradient(var(--orange) calc(var(--p, 0) * 1turn), rgba(255, 255, 255, .9) 0);
-  -webkit-mask: radial-gradient(circle, transparent 35px, #000 36px);
-          mask: radial-gradient(circle, transparent 35px, #000 36px);
+  -webkit-mask: radial-gradient(circle, transparent 32px, #000 33px);
+          mask: radial-gradient(circle, transparent 32px, #000 33px);
 }
 .shutter .core {
-  width: 62px; height: 62px;
+  width: 58px; height: 58px;
   border-radius: 50%;
   background: #fff;
   transition: transform .2s ease, background .2s ease, border-radius .2s ease;
@@ -119,16 +128,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .shutter.recording .core { background: var(--pink); transform: scale(.55); border-radius: 22%; }
 
 .hint {
-  position: absolute;
-  left: 0; right: 0;
-  bottom: calc(env(safe-area-inset-bottom) + 6px);
-  margin: 0;
+  margin: 6px 0 0;
   text-align: center;
   font-size: 13px;
   font-weight: 600;
   opacity: .85;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, .6);
-  pointer-events: none !important;
 }
 
 /* Sheets */
