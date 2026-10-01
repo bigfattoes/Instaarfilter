@@ -11,6 +11,7 @@ const MAX_FACES = 3;
 const MAX_RECORD_MS = 15000;
 const HOLD_TO_RECORD_MS = 300;
 const SAFE_TOP = 190; // Instagram story progress bar + profile row
+const FOOTER_TOP = 1440; // top of the @activatemefest tab
 const BADGE_HEIGHT = 3.15; // badge height (pill + tag) in units of its font size
 
 const COLORS = {
@@ -26,22 +27,20 @@ const CONFETTI_COLORS = [COLORS.purple, COLORS.violet, COLORS.pink, COLORS.orang
 // Where the cap image meets the forehead: x = centre of the logo, y = bottom of the brim (fractions of cap.png).
 const CAP = { anchorX: 0.54, anchorY: 0.63, scale: 1.5, aspect: 332 / 539 };
 
-// What the spinner can land on. Taken from the festival's activity zones.
+// What the spinner can land on: the activities at the festival.
 const ACTIVITIES = [
   ['⚽', 'FOOTBALL'],
   ['🏀', 'BASKETBALL'],
-  ['🏉', 'RUGBY'],
+  ['🏏', 'CRICKET'],
+  ['🎾', 'TENNIS'],
+  ['🏊', 'SWIMMING'],
   ['🤸', 'GYMNASTICS'],
-  ['💃', 'DANCE'],
-  ['🎵', 'MUSIC'],
-  ['🎨', 'ART'],
-  ['🥽', 'VIRTUAL REALITY'],
-  ['🎮', 'E-GAMING'],
-  ['🥋', 'MARTIAL ARTS'],
-  ['🏓', 'TEQBALL'],
-  ['🤖', 'ROBOTICS'],
-  ['🎭', 'DRAMA'],
-  ['🧗', 'CLIMBING'],
+  ['🥊', 'BOXING'],
+  ['⛸️', 'SKATING'],
+  ['🚴', 'CYCLING'],
+  ['🎮', 'VR & ESPORTS'],
+  ['♟️', 'CHESS'],
+  ['🎨', 'CREATIVITY'],
 ];
 
 // Shown in the footer of every photo and video
@@ -246,7 +245,10 @@ function headFrame(lm, map) {
   const s = len(r);
   r = scale(r, 1 / s);
   const u = orthonormal(sub(Q(LM.foreheadTop), Q(LM.chin)), r);
-  return { o: scale(add(a, b), 0.5), r, u, s };
+  const o = scale(add(a, b), 0.5);
+  // Height of the top of the forehead above the cheek line, in face widths
+  const top = dot(sub(Q(LM.foreheadTop), o), u) / s;
+  return { o, r, u, s, top };
 }
 
 const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
@@ -279,6 +281,7 @@ function updateFaces(faceLandmarks, now) {
     const h = s.head;
     h.o = lerp3(h.o, pose.head.o, 0.55);
     h.s += (pose.head.s - h.s) * 0.4;
+    h.top += (pose.head.top - h.top) * 0.3;
     const r = lerp3(h.r, pose.head.r, 0.5);
     h.r = scale(r, 1 / len(r));
     h.u = orthonormal(lerp3(h.u, pose.head.u, 0.5), h.r);
@@ -521,13 +524,20 @@ function drawBadges(faces, now) {
       const lift = s.size * 0.09 + capH * CAP.anchorY + s.size * 0.12;
       let x = s.x + Math.sin(s.angle) * lift;
       let y = s.y - Math.cos(s.angle) * lift;
+      let angle = s.angle;
       // No room above the cap (face near the top of the frame)? Put the badge under the chin instead.
       if (y - unit * BADGE_HEIGHT < SAFE_TOP) {
         const drop = s.size * 0.12 + unit * BADGE_HEIGHT;
         x = s.chinX - Math.sin(s.angle) * drop;
         y = s.chinY + Math.cos(s.angle) * drop;
       }
-      burstAt.push(drawBadge(x, y, s.angle, unit, a, spin.plans[i], now));
+      // Face fills the screen? Pin the badge to the top, upright.
+      if (y > FOOTER_TOP - 20) {
+        x = W / 2 + (i - (faces.length - 1) / 2) * 340;
+        y = SAFE_TOP + unit * BADGE_HEIGHT;
+        angle = 0;
+      }
+      burstAt.push(drawBadge(x, y, angle, unit, a, spin.plans[i], now));
     });
   }
   if (spin.burstPending) {

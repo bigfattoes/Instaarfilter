@@ -9,12 +9,12 @@ import * as THREE from '../vendor/three/three.module.js';
 // Measured on real faces: the forehead's surface is about 0.5 face widths in front of the cheek line
 // and the top of the face mesh (landmark 10) is about 0.53 above it.
 const TUNE = {
-  capY: 0.55,     // height of the crown's centre above the cheek line
+  capAbove: 0.03, // crown's rim sits this far above the top of the forehead (landmark 10)
   capZ: -0.13,    // crown centre, behind the cheek line (roughly the centre of the head)
-  tilt: 0.22,     // radians; caps sit lower at the front than the back
+  tilt: 0.04,     // radians; a little lower at the front than the back
   crown: { x: 0.6, y: 0.5, z: 0.72 },
-  brimLength: 0.56,
-  head: { y: -0.52, z: -0.04, rx: 0.52, ry: 0.86, rz: 0.64 }, // invisible head, in cap space
+  brimLength: 0.5,
+  head: { y: -0.6, z: -0.04, rx: 0.52, ry: 0.86, rz: 0.64 }, // invisible head, in cap space
 };
 
 const COLORS = {
@@ -72,6 +72,7 @@ export function createCap3D({ width, height, logo, resolution = 0.75 }) {
       f.crossVectors(r, u);
       basis.makeBasis(r, u, f).scale(new THREE.Vector3(h.s, h.s, h.s)).setPosition(h.o[0], h.o[1], h.o[2]);
       cap.matrix.copy(basis);
+      cap.getObjectByName('cap').position.y = h.top + TUNE.capAbove;
       cap.matrixWorldNeedsUpdate = true;
     });
     renderer.render(scene, camera);
@@ -84,7 +85,8 @@ export function createCap3D({ width, height, logo, resolution = 0.75 }) {
 function buildCap(logo, anisotropy) {
   const root = new THREE.Group();
   const cap = new THREE.Group();
-  cap.position.set(0, TUNE.capY, TUNE.capZ);
+  cap.name = 'cap';
+  cap.position.set(0, 0.6, TUNE.capZ);
   cap.rotation.x = TUNE.tilt;
   root.add(cap);
 
@@ -168,7 +170,7 @@ function brimGeometry(cx, cz, length) {
     // How far this point sticks out past the crown (0 at the crown, 1 at the brim's edge)
     const out = Math.hypot(x / cx, z / cz);
     const reach = Math.max(0, Math.min(1, (out - 1) / ((oz / cz) - 1)));
-    const y = pos.getY(i) + 0.012 - 0.2 * nx * nx * reach - 0.07 * reach;
+    const y = pos.getY(i) + 0.012 - 0.16 * nx * nx * reach - 0.03 * reach;
     pos.setY(i, y);
   }
   geo.computeVertexNormals();

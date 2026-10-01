@@ -4,7 +4,7 @@ A free web AR filter for **ActivateMe™ Fest**. People open a link, and their p
 
 - 🧢 **Acti's cap in 3D**, tracked onto every face in the shot (up to 3, so whole families can join in). It turns, tilts and nods with the head. Add `?cap=2d` to the link for the original flat cap.
 - 🧡 **Acti's orange nose** (can be turned off)
-- 🎲 **Spin!**: a "What should I try?" randomizer above each head that lands on an activity (football, dance, VR, e-gaming…) with confetti
+- 🎲 **Spin!**: a "What should I try?" randomizer above each head that lands on one of the festival's activities (football, cricket, swimming, boxing, VR & esports, chess…) with confetti
 - A branded frame with the logo, **@activatemefest**, the dates (**16–17 Jan 2027**), the venue (**Dubai Silicon Oasis**), and Acti waving
 
 **Tap** the shutter for a photo and **hold** it for a video of up to 15 seconds. **Share** opens the phone's share sheet, so people can post straight to their Instagram story and tag @activatemefest.
