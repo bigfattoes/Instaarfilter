@@ -22,7 +22,12 @@
   <main id="stage">
     <div id="viewport">
       <video id="video" playsinline muted autoplay></video>
-      <canvas id="canvas" width="1080" height="1920" aria-label="Camera with ActivateMe Fest filter"></canvas>
+      <!-- Layers: camera + nose (canvas), 3D cap (added by js/cap3d.js), badges + frame (overlay).
+           They are only merged into one image when a photo or video is taken. -->
+      <div id="layers">
+        <canvas id="canvas" width="1080" height="1920" aria-label="Camera with ActivateMe Fest filter"></canvas>
+        <canvas id="overlay" width="1080" height="1920" aria-hidden="true"></canvas>
+      </div>
       <button id="flipBtn" class="icon-btn top-right" hidden aria-label="Switch camera">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-3.2l-1.6-2H8.8L7.2 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12.5a3 3 0 0 1 5.2-2M15 13.5a3 3 0 0 1-5.2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m14.6 8.6-.4 1.9 1.9.3M9.4 17.4l.4-1.9-1.9-.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>

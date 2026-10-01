@@ -25,7 +25,7 @@ const COLORS = {
   seam: 'rgba(40, 20, 90, 0.16)',
 };
 
-export function createCap3D({ width, height, logo, resolution = 0.5 }) {
+export async function createCap3D({ width, height, logo, resolution = 0.5 }) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
@@ -56,11 +56,17 @@ export function createCap3D({ width, height, logo, resolution = 0.5 }) {
   const u = new THREE.Vector3();
   const f = new THREE.Vector3();
 
-  // Compile the shaders now, so the first frame with a face doesn't stutter.
+  // Compile the shaders now, in the background where the browser allows it,
+  // so the first frame with a face doesn't freeze.
   const warm = template.clone();
   scene.add(warm);
-  renderer.compile(scene, camera);
+  try {
+    await renderer.compileAsync(scene, camera);
+  } catch {
+    renderer.compile(scene, camera);
+  }
   scene.remove(warm);
+  renderer.render(scene, camera); // leaves the canvas cleared and transparent
 
   function render(heads) {
     while (caps.length < heads.length) {

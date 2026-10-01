@@ -13,6 +13,10 @@ It runs entirely in the browser (Google MediaPipe face tracking). There's no app
 
 > **Why not a "real" Instagram filter?** Meta shut down Spark AR in January 2025, and Instagram no longer accepts third-party AR effects. A web filter linked from the bio and stories is the free way to do this now.
 
+## Live link
+
+**https://becomeacti.pages.dev/** is hosted free on Cloudflare Pages, which is connected to this repo. Every push to `main` goes live automatically within a minute or two; there's nothing to build.
+
 ## Put it online (free)
 
 The site is plain static files, so any static host works. Pick one:

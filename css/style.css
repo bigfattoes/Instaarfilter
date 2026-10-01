@@ -46,11 +46,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 #video { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-#canvas {
+#layers {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+}
+#layers canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 14px;
 }
 
 /* Controls live in their own strip under the camera so they never cover the frame. */

@@ -65,7 +65,16 @@ const USE_3D_CAP = new URLSearchParams(location.search).get('cap') !== '2d';
 const $ = (id) => document.getElementById(id);
 const video = $('video');
 const canvas = $('canvas');
-const ctx = canvas.getContext('2d');
+const baseCtx = canvas.getContext('2d');
+const overlay = $('overlay');
+const overlayCtx = overlay.getContext('2d');
+// The drawing functions draw onto `ctx`; draw() points it at the right layer.
+let ctx = baseCtx;
+// All layers merged, only for photos and videos.
+const output = document.createElement('canvas');
+output.width = W;
+output.height = H;
+const outCtx = output.getContext('2d');
 
 const ui = {
   intro: $('intro'), loading: $('loading'), loadingText: $('loadingText'),
@@ -85,6 +94,7 @@ let lastVideoTime = -1;
 let lastFaceSeen = 0;
 let showNose = true;
 let cap3d = null;
+let cap3dVisible = false;
 
 const slots = []; // smoothed face poses, sorted left → right on screen
 const confetti = [];
@@ -126,7 +136,14 @@ async function setup3DCap() {
   cap3dLoading = true;
   try {
     const [{ createCap3D }] = await Promise.all([import('./cap3d.js'), loadAssets()]);
-    cap3d = createCap3D({ width: W, height: H, logo: images.logo });
+    // Let the camera and tracking settle before building the 3D cap.
+    await new Promise((r) => setTimeout(r, 300));
+    const created = await createCap3D({ width: W, height: H, logo: images.logo });
+    if (created) {
+      created.canvas.setAttribute('aria-hidden', 'true');
+      $('layers').insertBefore(created.canvas, overlay);
+      cap3d = created;
+    }
   } catch (err) {
     console.warn('3D cap failed to load, keeping the flat cap', err);
   }
@@ -694,16 +711,35 @@ function drawFrame(now) {
 
 function draw(now) {
   const faces = visibleSlots(now);
+
+  // Bottom layer: camera, nose (and the flat cap until the 3D one is ready)
+  ctx = baseCtx;
   drawBackground();
   if (showNose) faces.forEach(drawNose);
-  if (faces.length) {
-    if (cap3d) ctx.drawImage(cap3d.render(faces.map((s) => s.head)), 0, 0, W, H);
-    else faces.forEach(drawCap);
+  if (cap3d) {
+    // Middle layer: the 3D cap draws straight onto its own canvas. Skip it while nobody's in shot.
+    if (faces.length || cap3dVisible) cap3d.render(faces.map((s) => s.head));
+    cap3dVisible = faces.length > 0;
+  } else {
+    faces.forEach(drawCap);
   }
+
+  // Top layer: spinner badge, confetti and the branded frame
+  ctx = overlayCtx;
+  ctx.clearRect(0, 0, W, H);
   updateSpin(now);
   drawBadges(faces, now);
   drawConfetti();
   drawFrame(now);
+  ctx = baseCtx;
+
+  if (rec.recorder) composite();
+}
+
+function composite() {
+  outCtx.drawImage(canvas, 0, 0);
+  if (cap3d) outCtx.drawImage(cap3d.canvas, 0, 0, W, H);
+  outCtx.drawImage(overlay, 0, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -740,7 +776,7 @@ function updateHint(now) {
 // ---------------------------------------------------------------------------
 
 function pickMime() {
-  if (!window.MediaRecorder || !canvas.captureStream) return '';
+  if (!window.MediaRecorder || !output.captureStream) return '';
   const options = [
     'video/mp4;codecs=avc1.42E01E',
     'video/mp4;codecs=avc1',
@@ -753,12 +789,14 @@ function pickMime() {
 }
 
 function takePhoto() {
-  canvas.toBlob((blob) => blob && showPreview(blob, 'image'), 'image/jpeg', 0.92);
+  composite();
+  output.toBlob((blob) => blob && showPreview(blob, 'image'), 'image/jpeg', 0.92);
 }
 
 function startRecording() {
   if (!rec.mime) return takePhoto();
-  const recorder = new MediaRecorder(canvas.captureStream(30), { mimeType: rec.mime, videoBitsPerSecond: 6_000_000 });
+  composite();
+  const recorder = new MediaRecorder(output.captureStream(30), { mimeType: rec.mime, videoBitsPerSecond: 6_000_000 });
   rec.chunks = [];
   recorder.ondataavailable = (e) => e.data && e.data.size && rec.chunks.push(e.data);
   recorder.onstop = () => {
@@ -849,8 +887,9 @@ function fitCanvas() {
   const availW = vp.clientWidth - 12;
   const availH = vp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
   const w = Math.max(0, Math.min(availW, (availH * 9) / 16));
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${(w * 16) / 9}px`;
+  const layers = $('layers');
+  layers.style.width = `${w}px`;
+  layers.style.height = `${(w * 16) / 9}px`;
 }
 window.addEventListener('resize', fitCanvas);
 window.addEventListener('orientationchange', () => setTimeout(fitCanvas, 300));
