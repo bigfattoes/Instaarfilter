@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#4a01e0">
+  <title>Become Acti · ActivateMe™ Fest</title>
+  <meta name="description" content="Put on Acti's cap, spin to find out what you'll activate, and share it with @activatemefest.">
+  <meta property="og:title" content="Become Acti · ActivateMe™ Fest">
+  <meta property="og:description" content="Put on Acti's cap, spin to find out what you'll activate, and share it with @activatemefest.">
+  <meta property="og:image" content="assets/og.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="stage">
+    <video id="video" playsinline muted autoplay></video>
+    <canvas id="canvas" width="1080" height="1920" aria-label="Camera with ActivateMe Fest filter"></canvas>
+
+    <div id="controls" hidden>
+      <button id="flipBtn" class="icon-btn top-right" aria-label="Switch camera">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-3.2l-1.6-2H8.8L7.2 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12.5a3 3 0 0 1 5.2-2M15 13.5a3 3 0 0 1-5.2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m14.6 8.6-.4 1.9 1.9.3M9.4 17.4l.4-1.9-1.9-.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="bottom-bar">
+        <button id="noseBtn" class="pill-btn" aria-pressed="true">
+          <span class="pill-emoji" aria-hidden="true">🧡</span><span>Acti nose</span>
+        </button>
+        <button id="shutter" class="shutter" aria-label="Tap for photo, hold for video">
+          <span class="ring"></span><span class="core"></span>
+        </button>
+        <button id="spinBtn" class="pill-btn spin" aria-label="Spin: what will you activate?">
+          <span class="pill-emoji" aria-hidden="true">🎲</span><span>Spin!</span>
+        </button>
+      </div>
+      <p class="hint" id="hint">Tap for photo · hold for video</p>
+    </div>
+
+    <section id="intro" class="sheet intro">
+      <div class="intro-card">
+        <img src="assets/acti.webp" alt="Acti, the ActivateMe Fest mascot" class="intro-acti">
+        <img src="assets/logo.png" alt="" class="intro-logo">
+        <h1>Become <span>Acti!</span></h1>
+        <p>Put on Acti's cap, hit <strong>Spin</strong> to find out what you'll activate, then share it and tag <strong>@activatemefest</strong>.</p>
+        <button id="startBtn" class="cta">Start the camera</button>
+        <p class="fine">Everything runs on your phone. Nothing is uploaded.</p>
+        <p class="warn" id="inAppWarn" hidden>Camera not opening? Tap <strong>⋯</strong> and choose <strong>Open in browser</strong>.</p>
+      </div>
+    </section>
+
+    <section id="loading" class="sheet" hidden>
+      <div class="loader"><span></span><span></span><span></span></div>
+      <p id="loadingText">Getting Acti's cap ready…</p>
+    </section>
+
+    <section id="error" class="sheet" hidden>
+      <div class="intro-card">
+        <img src="assets/acti.webp" alt="" class="intro-acti small">
+        <h2>Oops!</h2>
+        <p id="errorText"></p>
+        <button id="retryBtn" class="cta">Try again</button>
+      </div>
+    </section>
+
+    <section id="preview" class="sheet preview" hidden>
+      <div class="preview-media" id="previewMedia"></div>
+      <p class="preview-tip">Post it to your story &amp; tag <strong>@activatemefest</strong> 🧡</p>
+      <div class="preview-actions">
+        <button id="retakeBtn" class="ghost">Retake</button>
+        <button id="saveBtn" class="ghost">Save</button>
+        <button id="shareBtn" class="cta">Share</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
