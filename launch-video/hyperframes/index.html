@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Become Acti · launch video</title>
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Baloo 2";
+        src: url("assets/Baloo2.ttf") format("truetype");
+        font-weight: 400 800;
+      }
+      :root {
+        --purple: #4a01e0;
+        --deep: #1b0b46;
+        --pink: #f83840;
+        --orange: #fc8700;
+      }
+      body { margin: 0; background: #0d0620; }
+      #root {
+        position: relative; width: 100%; height: 100%; overflow: hidden;
+        font-family: "Baloo 2", sans-serif; font-weight: 800; color: #fff;
+      }
+      .abs { position: absolute; }
+      .full { position: absolute; inset: 0; }
+      .center-x { left: 0; right: 0; text-align: center; }
+      #confetti i { opacity: 0; }
+      .shadow { text-shadow: 0 10px 0 rgba(27, 11, 70, .35); }
+
+      /* Background: purple with two slow colour blobs */
+      #bg { background: linear-gradient(160deg, #3a06c9 0%, #5b14e6 45%, #8a1fe0 100%); }
+      #blobA, #blobB { border-radius: 50%; filter: blur(120px); opacity: .55; }
+      #blobA { width: 900px; height: 900px; left: -300px; top: 900px; background: #fc5a20; }
+      #blobB { width: 800px; height: 800px; left: 500px; top: -250px; background: #c21ae0; }
+
+      /* Hook */
+      #cap { left: 230px; top: 150px; width: 620px; }
+      #capShadow { left: 360px; top: 520px; width: 360px; height: 40px; border-radius: 50%; background: rgba(20, 0, 60, .35); filter: blur(10px); }
+      #pov { top: 575px; font-size: 96px; letter-spacing: .02em; }
+      #become { top: 700px; font-size: 200px; line-height: 1; }
+      #actiWord { top: 890px; font-size: 300px; line-height: 1; color: var(--orange); }
+
+      /* Titles above the phone */
+      .title { top: 110px; font-size: 96px; line-height: 1.05; }
+      .title .w { display: inline-block; }
+      .title .you { color: var(--orange); }
+
+      /* Phone: starts as the whole frame, then zooms out to a phone */
+      #phone { left: 0; top: 0; width: 1080px; height: 1920px; }
+      #screenBg { border-radius: 110px; background: linear-gradient(180deg, #3d0bb8 0%, #5a18e0 55%, #7a2cf0 100%); }
+      #frame { border-radius: 110px; border: 22px solid #fff; box-shadow: 0 40px 120px rgba(10, 0, 40, .6), inset 0 0 0 10px #12052e; }
+      .acti { left: 230px; top: 520px; width: 620px; height: 1026px; object-fit: contain; object-position: 50% 100%; }
+      #actiShadow { left: 330px; top: 1500px; width: 420px; height: 60px; border-radius: 50%; background: rgba(20, 0, 60, .35); filter: blur(12px); }
+
+      #bar {
+        left: 90px; right: 90px; top: 1420px; height: 210px; border-radius: 48px;
+        background: linear-gradient(90deg, var(--purple) 0%, #b01ab8 45%, var(--pink) 72%, var(--orange) 100%);
+        display: flex; align-items: center; gap: 34px; padding: 0 40px; box-sizing: border-box;
+        box-shadow: 0 16px 40px rgba(10, 0, 40, .35);
+      }
+      .disc { flex: none; width: 140px; height: 140px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+      .disc img { width: 100px; }
+      #bar .name { font-size: 62px; line-height: 1; }
+      #bar .date { font-size: 36px; line-height: 1.1; font-weight: 700; opacity: .95; }
+      #btns { left: 90px; right: 90px; top: 1680px; height: 150px; display: flex; align-items: center; justify-content: space-between; }
+      .pill { height: 100px; padding: 0 44px; border-radius: 60px; display: grid; place-items: center; font-size: 44px; }
+      #noseBtn { background: rgba(255, 255, 255, .14); border: 4px solid rgba(255, 255, 255, .5); }
+      #spinBtn { background: linear-gradient(120deg, var(--purple), var(--pink) 70%, var(--orange)); border: 4px solid rgba(255, 255, 255, .7); }
+      #shutter { width: 150px; height: 150px; border-radius: 50%; border: 12px solid #fff; box-sizing: border-box; display: grid; place-items: center; }
+      #shutter div { width: 104px; height: 104px; border-radius: 50%; background: #fff; }
+      #ripple { width: 200px; height: 200px; border-radius: 50%; border: 10px solid #fff; left: 738px; top: 1655px; }
+
+      /* Spinner badge */
+      #badge { left: 140px; right: 140px; top: 250px; height: 330px; }
+      .tag {
+        left: 50%; top: 0; height: 84px; padding: 0 40px; border-radius: 50px; display: grid; place-items: center;
+        font-size: 44px; white-space: nowrap; transform: translateX(-50%);
+      }
+      #tagAsk { background: var(--purple); border: 5px solid #fff; }
+      #tagShould { background: var(--orange); border: 5px solid #fff; }
+      #reel {
+        left: 0; right: 0; top: 100px; height: 170px; border-radius: 90px; background: #fff; overflow: hidden;
+        border: 8px solid var(--purple); box-shadow: 14px 14px 0 var(--orange);
+      }
+      #reelStrip { left: 0; right: 0; top: 0; }
+      #reelStrip div { height: 154px; line-height: 164px; text-align: center; font-size: 104px; color: var(--purple); white-space: nowrap; }
+      #ring { width: 600px; height: 600px; border-radius: 50%; border: 14px solid #fff; left: 100px; top: -115px; }
+
+      /* Result cards */
+      .card { overflow: hidden; }
+      .card.hot { background: radial-gradient(circle at 50% 45%, #ff9a1a 0%, #fc6a10 45%, #f83840 100%); }
+      .card.cool { background: radial-gradient(circle at 50% 45%, #7a2cf0 0%, #5612e0 50%, #3a06b0 100%); }
+      .card .rays { left: -460px; top: -40px; width: 2000px; height: 2000px; opacity: .14;
+        background: repeating-conic-gradient(from 0deg at 50% 50%, #fff 0deg 9deg, transparent 9deg 24deg); border-radius: 50%; }
+      .card .kick { top: 230px; font-size: 64px; letter-spacing: .03em; }
+      .card .word { top: 300px; font-size: 170px; line-height: 1; }
+            .card img { object-fit: contain; object-position: 50% 100%; }
+      #snap { top: 1640px; font-size: 76px; }
+      #snap .dot { color: var(--orange); }
+      #snap .w { display: inline-block; }
+
+      /* End card */
+      #endBg { width: 3000px; height: 3000px; left: -960px; top: -540px; border-radius: 50%;
+        background: radial-gradient(circle at 50% 50%, #5a18e0 0%, #3a07b8 30%, #1b0b46 60%); }
+      #endDisc { left: 440px; top: 200px; width: 200px; height: 200px; }
+      #endDisc img { width: 140px; }
+      #endActi { left: 305px; top: 430px; width: 470px; height: 780px; object-fit: contain; }
+      #endTitle { top: 1250px; font-size: 140px; line-height: 1; }
+      #url { left: 170px; right: 170px; top: 1440px; height: 130px; border-radius: 70px; background: #fff; color: var(--purple);
+        display: grid; place-items: center; font-size: 64px; }
+      #date { top: 1610px; font-size: 52px; }
+      #bio { top: 1690px; font-size: 64px; letter-spacing: .12em; color: var(--orange); }
+
+      #confetti i { position: absolute; display: block; width: 26px; height: 14px; border-radius: 3px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="15">
+      <div id="bg" class="full"></div>
+      <div id="blobA" class="abs"></div>
+      <div id="blobB" class="abs"></div>
+
+      <!-- Hook -->
+      <section id="hook" class="clip full" data-start="0" data-duration="1.95" data-track-index="1">
+        <div id="capShadow" class="abs"></div>
+        <img id="cap" class="abs" src="assets/cap.png" alt="" />
+        <div id="pov" class="abs center-x shadow">POV:</div>
+        <div id="become" class="abs center-x" data-ol="#4a01e0,12">BECOME</div>
+        <div id="actiWord" class="abs center-x" data-ol="#ffffff,16">ACTI!</div>
+      </section>
+
+      <!-- Phone scenes -->
+      <section id="phoneScene" class="clip full" data-start="1.875" data-duration="7.6" data-track-index="2">
+        <div id="phone" class="abs">
+          <div id="screenBg" class="full"></div>
+          <div id="actiShadow" class="abs"></div>
+          <img id="actiWave" class="abs acti" src="assets/pose_wave.png" alt="" />
+          <img id="actiBox" class="abs acti" src="assets/pose_boxing.png" alt="" />
+          <div id="badge" class="abs">
+            <div id="ring" class="abs"></div>
+            <div id="reel" class="abs"><div id="reelStrip" class="abs"></div></div>
+            <div id="tagAsk" class="abs tag">WHAT SHOULD I TRY?</div>
+            <div id="tagShould" class="abs tag">I SHOULD TRY...</div>
+          </div>
+          <div id="bar" class="abs">
+            <div class="disc"><img src="assets/logo.png" alt="" /></div>
+            <div>
+              <div class="name">ACTIVATEME™ FEST</div>
+              <div class="date">16–17 JAN 2027 · DUBAI SILICON OASIS</div>
+            </div>
+          </div>
+          <div id="btns" class="abs">
+            <div id="noseBtn" class="pill">ACTI NOSE</div>
+            <div id="shutter"><div></div></div>
+            <div id="spinBtn" class="pill">SPIN!</div>
+          </div>
+          <div id="ripple" class="abs"></div>
+          <div id="frame" class="full"></div>
+        </div>
+        <div id="t1" class="abs center-x title" data-ol="#4a01e0,12"><span class="w">Put</span> <span class="w">on</span> <span class="w">Acti's</span> <span class="w">cap</span></div>
+        <div id="t2" class="abs center-x title" data-ol="#4a01e0,12"><span class="w">Tap</span> <span class="w">SPIN!</span></div>
+        <div id="t3" class="abs center-x title" data-ol="#4a01e0,12"><span class="w">What</span> <span class="w">should</span> <span class="w you">YOU</span> <span class="w">try?</span></div>
+        <div id="confetti" class="full"></div>
+      </section>
+
+      <!-- Result cards -->
+      <section id="cards" class="clip full" data-start="9.375" data-duration="2.85" data-track-index="3">
+        <div id="card1" class="card hot full">
+          <div class="rays abs"></div>
+          <div class="kick abs center-x shadow">I SHOULD TRY...</div>
+          <div data-ol="#4a01e0,14" class="word abs center-x">FOOTBALL</div>
+          <img class="abs" src="assets/pose_football.png" alt="" style="left:95px; top:560px; width:890px; height:983px" />
+        </div>
+        <div id="card2" class="card cool full">
+          <div class="rays abs"></div>
+          <div class="kick abs center-x shadow">I SHOULD TRY...</div>
+          <div data-ol="#f83840,14" class="word abs center-x">CHESS</div>
+          <img class="abs" src="assets/pose_chess.png" alt="" style="left:225px; top:540px; width:630px; height:1036px" />
+        </div>
+        <div id="card3" class="card hot full">
+          <div class="rays abs"></div>
+          <div class="kick abs center-x shadow">I SHOULD TRY...</div>
+          <div data-ol="#4a01e0,14" class="word abs center-x" style="font-size:140px; top:318px">GYMNASTICS</div>
+          <img class="abs" src="assets/pose_gymnastics.png" alt="" style="left:80px; top:600px; width:920px; height:904px" />
+        </div>
+        <div id="snap" class="abs center-x" data-ol="#4a01e0,12"><span class="w">Snap it</span> <span class="w dot">·</span> <span class="w">Share it</span></div>
+      </section>
+
+      <!-- End card -->
+      <section id="end" class="clip full" data-start="12.1875" data-duration="2.8125" data-track-index="4">
+        <div id="endBg" class="abs"></div>
+        <div id="endDisc" class="abs disc"><img src="assets/logo.png" alt="" /></div>
+        <img id="endActi" class="abs" src="assets/pose_wave.png" alt="" />
+        <div id="endTitle" class="abs center-x" data-ol="#f83840,14">BECOME ACTI</div>
+        <div id="url" class="abs">becomeacti.pages.dev</div>
+        <div id="date" class="abs center-x">16–17 JAN 2027 · DUBAI SILICON OASIS</div>
+        <div id="bio" class="abs center-x">LINK IN BIO</div>
+      </section>
+
+      <audio id="music" src="assets/music.wav" data-start="0" data-duration="15" data-volume="1"></audio>
+    </div>
+
+    <script>
+      // Timings are on a 128 BPM grid (one beat = 0.46875 s). tools/make_music.py uses the same numbers.
+      const B = 0.46875;
+      const SPIN = { from: 5.7, to: 7.5 };
+      const REEL = ["CYCLING", "SKATING", "TENNIS", "BASKETBALL", "SWIMMING", "CRICKET", "VR & ESPORTS", "GYMNASTICS",
+        "FOOTBALL", "CHESS", "CREATIVITY", "SKATING", "TENNIS", "CYCLING", "SWIMMING", "BASKETBALL", "BOXING"];
+
+      const strip = document.getElementById("reelStrip");
+      REEL.forEach((w) => { const d = document.createElement("div"); d.textContent = w; strip.appendChild(d); });
+
+      // Seeded confetti
+      let seed = 7;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const conf = document.getElementById("confetti");
+      const colors = ["#fc8700", "#f83840", "#ffffff", "#ffd23f", "#b01ab8", "#2fd4ff"];
+      const bits = [];
+      for (let i = 0; i < 70; i++) {
+        const el = document.createElement("i");
+        el.style.background = colors[i % colors.length];
+        el.style.left = "529px";
+        el.style.top = "665px";
+        conf.appendChild(el);
+        bits.push(el);
+      }
+
+      // Outlines drawn with stacked text-shadows (a stroke on this variable font shows the glyph overlaps)
+      document.querySelectorAll("[data-ol]").forEach((el) => {
+        const [c, w] = el.dataset.ol.split(",");
+        const r = +w, out = [];
+        for (let a = 0; a < 32; a++) {
+          const t = (a / 32) * Math.PI * 2;
+          out.push(`${(Math.cos(t) * r).toFixed(1)}px ${(Math.sin(t) * r).toFixed(1)}px 0 ${c}`);
+        }
+        out.push(`0 ${r + 10}px 0 rgba(27,11,70,.35)`);
+        el.style.textShadow = out.join(",");
+      });
+
+      const tl = gsap.timeline({ paused: true });
+      const pop = (sel, t, from = 0.4) =>
+        tl.fromTo(sel, { scale: from, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(2.2)" }, t);
+
+      // Background drift
+      tl.fromTo("#blobA", { x: 0, y: 0 }, { x: 260, y: -500, duration: 15, ease: "sine.inOut" }, 0);
+      tl.fromTo("#blobB", { x: 0, y: 0 }, { x: -380, y: 420, duration: 15, ease: "sine.inOut" }, 0);
+
+      // ---- Hook (0 – 1.875)
+      tl.fromTo("#cap", { y: -700, rotation: -25 }, { y: 0, rotation: 0, duration: 0.42, ease: "power3.in" }, 0);
+      tl.to("#cap", { scaleY: 0.82, scaleX: 1.1, duration: 0.07, ease: "power2.out", transformOrigin: "50% 100%" }, 0.42);
+      tl.to("#cap", { scaleY: 1, scaleX: 1, duration: 0.4, ease: "elastic.out(1.2, 0.4)" }, 0.49);
+      tl.fromTo("#capShadow", { scale: 0.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "power3.in" }, 0);
+      tl.to("#cap", { rotation: 6, duration: B * 2, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.9);
+      pop("#pov", B);
+      tl.fromTo("#become", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.in" }, B * 2 - 0.22);
+      tl.fromTo("#actiWord", { scale: 3, opacity: 0, rotation: -8 }, { scale: 1, opacity: 1, rotation: -4, duration: 0.22, ease: "power4.in" }, B * 3 - 0.22);
+      tl.fromTo("#hook", { x: 0 }, { x: 18, duration: 0.05, yoyo: true, repeat: 3, ease: "none" }, B * 3);
+      tl.to("#actiWord", { scale: 1.08, duration: B, ease: "sine.inOut", yoyo: true, repeat: 1 }, B * 3 + 0.05);
+      // exit: everything flies up
+      tl.to(["#cap", "#capShadow", "#pov", "#become", "#actiWord"], { y: -1400, duration: 0.3, ease: "power3.in", stagger: 0.02 }, 1.62);
+
+      // ---- Acti lands (1.875 – 3.75)
+      tl.fromTo("#screenBg", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 1.875);
+      tl.fromTo("#frame", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 1.875);
+      tl.fromTo(["#bar", "#badge", "#actiBox", "#ripple"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 1.875);
+      tl.fromTo("#actiWave", { y: -1500 }, { y: 0, duration: 0.33, ease: "power3.in" }, 1.875);
+      tl.fromTo("#actiShadow", { scale: 0.1, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.33, ease: "power3.in" }, 1.875);
+      tl.to("#actiWave", { scaleY: 0.86, scaleX: 1.08, duration: 0.07, transformOrigin: "50% 100%", ease: "power2.out" }, 2.205);
+      tl.to("#actiWave", { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1.1, 0.35)" }, 2.275);
+      tl.fromTo("#t1 .w", { y: 80, opacity: 0, scale: 0.6 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", stagger: B / 3 }, B * 5);
+      tl.to("#actiWave", { rotation: -3, duration: B, ease: "sine.inOut", yoyo: true, repeat: 2, transformOrigin: "50% 100%" }, 2.8);
+      tl.to("#t1 .w", { y: -60, opacity: 0, duration: 0.2, ease: "power2.in", stagger: 0.03 }, 3.6);
+
+      // ---- Zoom out into the phone (3.75)
+      tl.fromTo("#phone", { scale: 1 }, { scale: 0.72, y: 90, duration: 0.55, ease: "expo.inOut" }, 3.6);
+      tl.to("#screenBg", { opacity: 1, duration: 0.35, ease: "power2.out" }, 3.7);
+      tl.to("#frame", { opacity: 1, duration: 0.3, ease: "power2.out" }, 3.75);
+      tl.to("#actiWave", { rotation: 0, duration: 0.2 }, 3.75);
+      tl.fromTo("#bar", { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.8)" }, B * 8.5);
+      pop("#noseBtn", B * 9);
+      pop("#shutter", B * 9 + 0.08);
+      pop("#spinBtn", B * 9 + 0.16);
+      tl.fromTo("#t2 .w", { y: 80, opacity: 0, scale: 0.6 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", stagger: B / 2 }, B * 9);
+      // the tap on SPIN
+      tl.to("#spinBtn", { scale: 1.12, duration: B / 2, ease: "sine.inOut", yoyo: true, repeat: 1 }, B * 10);
+      tl.to("#spinBtn", { scale: 0.86, duration: 0.08, ease: "power2.in" }, B * 11);
+      tl.to("#spinBtn", { scale: 1, duration: 0.35, ease: "back.out(3)" }, B * 11 + 0.08);
+      tl.fromTo("#ripple", { scale: 0.4, opacity: 1 }, { scale: 1.6, opacity: 0, duration: 0.5, ease: "power2.out" }, B * 11);
+      tl.to("#t2 .w", { y: -60, opacity: 0, duration: 0.2, ease: "power2.in", stagger: 0.03 }, B * 11.6);
+
+      // ---- Spin (5.625 – 9.375)
+      tl.fromTo("#t3 .w", { y: 80, opacity: 0, scale: 0.6 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", stagger: B / 4 }, B * 12);
+      tl.fromTo("#badge", { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, B * 12 - 0.05);
+      tl.fromTo("#tagShould", { opacity: 0 }, { opacity: 0, duration: 0.01 }, B * 12);
+      tl.fromTo("#ring", { opacity: 0 }, { opacity: 0, duration: 0.01 }, B * 12);
+      tl.fromTo("#reelStrip", { y: 0 }, { y: -(REEL.length - 1) * 154, duration: SPIN.to - SPIN.from, ease: "power3.out" }, SPIN.from);
+      tl.to("#actiWave", { y: -30, duration: B / 2, ease: "sine.inOut", yoyo: true, repeat: 3 }, SPIN.from);
+      // landing on BOXING
+      tl.fromTo("#reel", { scale: 1 }, { scale: 1.12, duration: 0.09, ease: "power2.out", yoyo: true, repeat: 1 }, SPIN.to);
+      tl.to("#tagAsk", { opacity: 0, duration: 0.05 }, SPIN.to);
+      tl.fromTo("#tagShould", { scale: 0.4, opacity: 0, xPercent: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.5)" }, SPIN.to);
+      tl.fromTo("#ring", { scale: 0.3, opacity: 1 }, { scale: 1.5, opacity: 0, duration: 0.6, ease: "power2.out" }, SPIN.to);
+      tl.to("#actiWave", { opacity: 0, duration: 0.04 }, SPIN.to);
+      tl.fromTo("#actiBox", { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(3)", transformOrigin: "50% 100%" }, SPIN.to);
+      tl.to("#actiBox", { x: 26, duration: B / 2, ease: "power2.out", yoyo: true, repeat: 3 }, SPIN.to + B);
+      bits.forEach((el, i) => {
+        const ang = rnd() * Math.PI * 2;
+        const sp = 260 + rnd() * 520;
+        const dx = Math.cos(ang) * sp;
+        const up = -Math.abs(Math.sin(ang)) * sp * 0.9 - 120;
+        const t0 = SPIN.to + rnd() * 0.05;
+        tl.set(el, { opacity: 1 }, t0);
+        tl.fromTo(el, { x: 0, y: 0, rotation: 0, scale: 0.6 + rnd() * 0.8 },
+          { x: dx, rotation: (rnd() - 0.5) * 900, duration: 1.85, ease: "power2.out" }, t0);
+        tl.to(el, { y: up, duration: 0.45, ease: "power2.out" }, t0);
+        tl.to(el, { y: up + 1500 + rnd() * 400, duration: 1.4, ease: "power2.in" }, t0 + 0.45);
+      });
+
+      // ---- Result cards (9.375 – 12.1875)
+      const cardT = [9.375, 9.375 + B * 2, 9.375 + B * 4];
+      ["#card1", "#card2", "#card3"].forEach((c, i) => {
+        const t = cardT[i];
+        if (i === 0) tl.fromTo(c, { yPercent: 100 }, { yPercent: 0, duration: 0.32, ease: "power4.out" }, t - 0.12);
+        else tl.fromTo(c, { xPercent: i % 2 ? 100 : -100 }, { xPercent: 0, duration: 0.3, ease: "power4.out" }, t - 0.1);
+        tl.fromTo(`${c} .rays`, { rotation: 0 }, { rotation: 40, duration: 1.4, ease: "none" }, t - 0.1);
+        tl.fromTo(`${c} .kick`, { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power3.out" }, t);
+        tl.fromTo(`${c} .word`, { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.2, ease: "power4.in" }, t + 0.03);
+        tl.fromTo(`${c} img`, { scale: 0.55, opacity: 0, y: 120 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.8)", transformOrigin: "50% 100%" }, t + 0.06);
+        tl.to(`${c} img`, { y: -24, duration: B / 2, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.56);
+      });
+      // card2 and card3 start off-screen until their slide
+      tl.set("#card2", { xPercent: 100 }, 9.0);
+      tl.set("#card3", { xPercent: -100 }, 9.0);
+      tl.fromTo("#snap .w", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "back.out(2)", stagger: B / 3 }, 9.375 + B);
+
+      // ---- End card (12.1875 – 15)
+      tl.fromTo("#endBg", { scale: 0 }, { scale: 1, duration: 0.45, ease: "power3.inOut" }, 12.0);
+      pop("#endDisc", 12.1875, 0.2);
+      tl.fromTo("#endActi", { y: -1300 }, { y: 0, duration: 0.33, ease: "power3.in" }, 12.1875 + B);
+      tl.to("#endActi", { scaleY: 0.88, scaleX: 1.06, duration: 0.07, transformOrigin: "50% 100%" }, 12.1875 + B + 0.33);
+      tl.to("#endActi", { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1.1, 0.35)" }, 12.1875 + B + 0.4);
+      tl.fromTo("#endTitle", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.in" }, 12.1875 + B * 2 - 0.22);
+      tl.fromTo("#url", { scaleX: 0.2, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, 12.1875 + B * 3);
+      tl.fromTo("#date", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, 12.1875 + B * 3.5);
+      tl.fromTo("#bio", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power3.out" }, 12.1875 + B * 4);
+      tl.to("#bio", { scale: 1.1, duration: B / 2, ease: "sine.inOut", yoyo: true, repeat: 3 }, 12.1875 + B * 4.5);
+      tl.to("#endActi", { rotation: -3, duration: B, ease: "sine.inOut", yoyo: true, repeat: 1, transformOrigin: "50% 100%" }, 13.6);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
