@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4a01e0">
+  <title>ActivateMe™ Fest · Links</title>
+  <meta name="description" content="Everything ActivateMe™ Fest in one place. 16–17 Jan 2027, Dubai Silicon Oasis.">
+  <meta property="og:title" content="ActivateMe™ Fest · 16–17 Jan 2027">
+  <meta property="og:description" content="Try the Become Acti filter, get tickets, the app and more.">
+  <meta property="og:image" content="https://becomeacti.pages.dev/assets/og.jpg">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple: #4a01e0;
+      --pink: #f83840;
+      --orange: #fc8700;
+      --ink: #1b0b46;
+      --brand: linear-gradient(120deg, #4a01e0 0%, #b01ab8 45%, #f83840 70%, #fc8700 100%);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { background: #2b0a83; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at 15% 85%, rgba(252, 106, 32, .55), transparent 45%),
+        radial-gradient(circle at 90% 5%, rgba(194, 26, 224, .6), transparent 45%),
+        linear-gradient(170deg, #3a06c9 0%, #4a10d8 50%, #2b0a83 100%);
+      background-attachment: fixed;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 32px);
+      text-align: center;
+    }
+
+    .hero { position: relative; display: grid; justify-items: center; }
+    .acti {
+      width: 150px; height: auto;
+      filter: drop-shadow(0 14px 22px rgba(10, 0, 40, .45));
+      animation: bob 3s ease-in-out infinite;
+    }
+    .logo {
+      position: absolute; top: 6px; left: calc(50% - 128px);
+      width: 64px; height: 64px; padding: 10px;
+      border-radius: 50%; background: #fff;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+    }
+    h1 { margin: 6px 0 0; font-size: 34px; line-height: 1; font-weight: 800; }
+    .when { margin: 6px 0 0; font-size: 16px; font-weight: 700; opacity: .92; }
+
+    .countdown {
+      display: inline-flex; gap: 8px; margin: 16px 0 6px;
+    }
+    .countdown div {
+      min-width: 68px; padding: 8px 6px 4px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .12);
+      border: 1.5px solid rgba(255, 255, 255, .25);
+    }
+    .countdown b { display: block; font-size: 28px; line-height: 1; }
+    .countdown span { font-size: 12px; font-weight: 700; letter-spacing: .08em; opacity: .85; }
+
+    .links { display: grid; gap: 12px; margin-top: 18px; }
+    .btn {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 60px; padding: 10px 18px 8px;
+      border-radius: 20px;
+      background: #fff; color: var(--ink);
+      text-decoration: none; text-align: left;
+      font-size: 18px; font-weight: 800; line-height: 1.15;
+      box-shadow: 0 8px 0 rgba(27, 11, 70, .25);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 4px 0 rgba(27, 11, 70, .25); }
+    .btn .ico { flex: none; width: 36px; font-size: 26px; text-align: center; }
+    .btn .txt { flex: 1; }
+    .btn small { display: block; font-size: 13px; font-weight: 700; color: #6b5fa8; }
+    .btn .arrow { flex: none; font-size: 22px; color: var(--purple); }
+
+    .btn.featured {
+      background: var(--brand); color: #fff;
+      border: 2px solid rgba(255, 255, 255, .6);
+      min-height: 84px; font-size: 22px;
+    }
+    .btn.featured small { color: rgba(255, 255, 255, .9); }
+    .btn.featured .arrow { color: #fff; }
+    .btn.featured .tag {
+      display: inline-block; margin-left: 6px; padding: 1px 8px 0;
+      border-radius: 99px; background: #fff; color: var(--pink);
+      font-size: 12px; vertical-align: 3px;
+    }
+    .btn.soon { opacity: .6; pointer-events: none; box-shadow: none; }
+
+    .apps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .apps .btn { min-height: 60px; font-size: 17px; padding: 10px 14px 8px; }
+
+    .reel {
+      margin-top: 22px; padding: 12px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .1);
+      border: 1.5px solid rgba(255, 255, 255, .2);
+    }
+    .reel h2 { margin: 2px 0 10px; font-size: 18px; }
+    .reel video {
+      display: block; width: 100%; max-width: 260px; margin: 0 auto;
+      aspect-ratio: 9 / 16; border-radius: 16px; background: #000;
+    }
+
+    .social { display: flex; justify-content: center; gap: 14px; margin-top: 24px; }
+    .social a {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255, 255, 255, .14);
+      border: 1.5px solid rgba(255, 255, 255, .3);
+      color: #fff;
+    }
+    .social svg { width: 24px; height: 24px; }
+    footer { margin-top: 22px; font-size: 13px; opacity: .7; }
+
+    @keyframes bob { 50% { transform: translateY(-6px) rotate(-1.5deg); } }
+    @media (prefers-reduced-motion: reduce) { .acti { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <img class="logo" src="logo.webp" alt="ActivateMe Fest logo">
+      <img class="acti" src="acti.webp" alt="Acti, the ActivateMe Fest mascot, waving" width="150" height="249">
+      <h1>ActivateMe™ Fest</h1>
+      <p class="when">16–17 Jan 2027 · Dubai Silicon Oasis</p>
+      <div class="countdown" id="countdown" aria-label="Countdown to the festival">
+        <div><b id="cd-d">--</b><span>DAYS</span></div>
+        <div><b id="cd-h">--</b><span>HRS</span></div>
+        <div><b id="cd-m">--</b><span>MINS</span></div>
+      </div>
+    </header>
+
+    <nav class="links" id="links"></nav>
+
+    <section class="reel">
+      <h2>Become Acti in 15 seconds</h2>
+      <video src="reel.mp4" poster="reel-poster.jpg" muted autoplay loop playsinline controls preload="metadata"></video>
+    </section>
+
+    <div class="social">
+      <a href="https://www.instagram.com/activatemefest/" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://www.activatemefest.com/" aria-label="Website">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></svg>
+      </a>
+    </div>
+    <footer>© ActivateMe™ Fest · MWAN Events</footer>
+  </main>
+
+  <script>
+    // ===== EDIT THE LINKS HERE =====
+    // Leave url empty ("") to show the button as "Coming soon".
+    const LINKS = [
+      { featured: true, icon: "🧢", title: "Become Acti", note: "Try our free AR filter", tag: "NEW", url: "https://becomeacti.pages.dev/" },
+      { icon: "🎟️", title: "Get tickets", note: "16–17 Jan 2027", url: "" },
+      { apps: true, ios: "", android: "" },
+      { icon: "💬", title: "Acti WhatsApp stickers", note: "Free sticker packs", url: "" },
+      { icon: "📅", title: "Add to my calendar", note: "Never miss it", url: "activatemefest-2027.ics" },
+      { icon: "📍", title: "How to get there", note: "Dubai Silicon Oasis", url: "https://maps.google.com/?q=Dubai+Silicon+Oasis" },
+      { icon: "🌐", title: "Visit our website", note: "activatemefest.com", url: "https://www.activatemefest.com/" },
+    ];
+    const EVENT_START = new Date("2027-01-16T10:00:00+04:00"); // Dubai time
+    // ================================
+
+    const nav = document.getElementById("links");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const button = (l, extra = "") => {
+      const soon = !l.url;
+      const note = soon ? "Coming soon" : l.note || "";
+      const tag = l.tag ? `<span class="tag">${esc(l.tag)}</span>` : "";
+      return `<a class="btn ${l.featured ? "featured" : ""} ${soon ? "soon" : ""} ${extra}" href="${esc(l.url || "#")}"${soon ? ' aria-disabled="true"' : ""}>
+        ${l.icon ? `<span class="ico" aria-hidden="true">${l.icon}</span>` : ""}
+        <span class="txt">${esc(l.title)}${tag}<small>${esc(note)}</small></span>
+        <span class="arrow" aria-hidden="true">›</span></a>`;
+    };
+    nav.innerHTML = LINKS.map((l) => {
+      if (!l.apps) return button(l);
+      return `<div class="apps">
+        ${button({ title: "App Store", note: "iPhone", url: l.ios })}
+        ${button({ title: "Google Play", note: "Android", url: l.android })}
+      </div>`;
+    }).join("");
+
+    const pad = (n) => String(n).padStart(2, "0");
+    function tick() {
+      const ms = Math.max(0, EVENT_START - Date.now());
+      const d = Math.floor(ms / 864e5);
+      const h = Math.floor((ms % 864e5) / 36e5);
+      const m = Math.floor((ms % 36e5) / 6e4);
+      document.getElementById("cd-d").textContent = d;
+      document.getElementById("cd-h").textContent = pad(h);
+      document.getElementById("cd-m").textContent = pad(m);
+    }
+    tick();
+    setInterval(tick, 30000);
+  </script>
+</body>
+</html>
